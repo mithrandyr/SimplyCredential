@@ -66,7 +66,7 @@ Add-Type -MemberDefinition $CreateProcessWithLogonW -Namespace SimplyCredential 
 #Load up base Classes
 
 #Dot source functions
-ForEach($f in Get-ChildItem "$PSScriptRoot\*.ps1" -File) {
+ForEach($f in Get-ChildItem $PSScriptRoot -filter "*.ps1" -File) {
     Try { . $f.fullname }
     Catch { Write-Error "Failed to import function $($f.fullname): $_" }
 }

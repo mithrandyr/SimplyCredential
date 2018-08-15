@@ -7,19 +7,24 @@
     is used.    
 
 .Parameter Name
-    The names to display, accepts wildcards.
+    The name to display, accepts wildcards.
 #>
 function Show-Credential {
-    param([Parameter(ValueFromPipeline)][string[]]$Name = "*"
+    param([Parameter(ValueFromPipeline)][string]$Name = "*"
         , [switch]$ShowPassword)
 
-    $script:CredList |
-        Where-Object {
-                $t = $_
-                $t.Name -in $Name -or
-                ($Name | Where-Object {$t.Name -like $_}).Count -gt 0
-            } |
-        Sort-Object Name
+    if($script:CredList.Count -gt 0) {
+        $script:CredList.keys |
+            Where-Object { $_ -like $Name } |
+            ForEach-Object {
+                    [PSCustomObject]@{
+                        Name = $_
+                        UserName = $script:CredList[$_].UserName
+                        Password = if($ShowPassword) { $script:CredList[$_].GetNetworkCredential().Password } else { "********" }
+                    }
+                } |
+            Sort-Object -Property Name
+    }        
 }
 
 Export-ModuleMember -Function Show-Credential

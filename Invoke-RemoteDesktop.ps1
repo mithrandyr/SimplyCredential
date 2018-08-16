@@ -30,7 +30,7 @@
 #>
 function Invoke-RemoteDesktop {
     [cmdletBinding()]
-    Param( [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)][alias("Server")][string]$ComputerName
+    Param([Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName, Position=0)][alias("Server")][string]$ComputerName
         , [Parameter()][int]$Port
         , [Parameter()][switch]$Admin
         , [Parameter()][pscredential]$Credential

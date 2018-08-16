@@ -9,14 +9,14 @@
     The name of the application reference, accepts wildcards.
 #>
 function Show-Application {
-    param([Parameter(ValueFromPipeline)][string]$Name
+    param([Parameter(ValueFromPipeline)][string]$Name = "*"
         , [switch]$IncludeObject)
 
     if($script:AppList.Count -gt 0) {
         $script:AppList.keys |
             Where-Object { $_ -like $Name } |
             ForEach-Object {
-                    $app = $script:AppList[$Name]
+                    $app = $script:AppList[$_]
                     $obj = [PSCustomObject]@{
                             Name = $_
                             Type = if($app.NetworkOnly) { "Network Only" }

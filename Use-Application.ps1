@@ -33,11 +33,13 @@ function Use-Application {
         $app = $script:AppList[$Name]
         if($app.NetworkOnly -and ($AsAdmin -or $WithUserProfile)) { throw "Cannot use -AsAdmin or -WithUserProfile with a saved 'Network Only' application." }
         
-        [string]$exePath = Resolve-Path -Path $app.Path | Select-Object -ExpandProperty ProviderPath
-        
         #Working Directory Override
-        if($UseCurrentDirectory) { [string]$exeFolder = Get-Location | Resolve-Path | Select-Object -ExpandProperty ProviderPath }
-        else { [string]$exeFolder = Split-Path $exePath -Parent }
+        [string]$exePath = $app.path
+        [string]$exeFolder = Get-Location | Resolve-Path | Select-Object -ExpandProperty ProviderPath
+        if(Test-Path $app.Path) {
+            [string]$exePath = Resolve-Path -Path $app.Path | Select-Object -ExpandProperty ProviderPath
+            if(-not $UseCurrentDirectory) { [string]$exeFolder = Split-Path $exePath -Parent }
+        }
 
         #Arguments Override
         if($Arguments) { $app.Arguments = $Arguments }

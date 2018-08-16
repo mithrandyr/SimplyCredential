@@ -86,11 +86,8 @@ Register-ArgumentCompleter -CommandName "Use-Application", "Save-Application", "
     Param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameter)
     $script:AppList.Keys | 
         Where-Object { $_ -like "$wordToComplete*" } |
-        ForEach-Object { [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $null) }
+        ForEach-Object { [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $script:AppList[$_].Path) }
 }
 
 # Clean variables
 Remove-Variable f, CreateProcessWithLogonW, dataPath
-
-#Adding HKCU drive if it doesn't exit
-if(-not (Test-Path hkcu:)) { New-PSDrive -Name hkcu -PSProvider Registry -Root HKEY_CURRENT_USER | Out-Null }

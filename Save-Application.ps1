@@ -40,7 +40,7 @@ function Save-Application {
         , [switch]$Force
     )
 
-    if(-not (Test-Path -Path $Path -PathType Leaf)) { throw "'$path' is not a valid file!" }
+    if(-not (Test-Path -Path $Path -PathType Leaf) -and -not (Get-Command -Name $path -ErrorAction Ignore)) { throw "'$path' is not a valid file!" }
     if($script:AppList.Keys -notcontains $name -or $Force) { 
         $script:AppList[$Name] = [PSCustomObject]@{
             Path = $Path

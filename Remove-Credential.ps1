@@ -16,7 +16,7 @@ function Remove-Credential {
         $script:CredList.Remove($name)
         $script:CredList | Export-Clixml -Path $script:CredListPath -Force
     }
-    else { throw "The credential '$name' already exists, use -Force to overwrite." }
+    else { Write-Warning "The credential '$name' does not exist." }
 }
 
 Export-ModuleMember -Function Remove-Credential

@@ -12,7 +12,7 @@
 RootModule = 'SimplyCredential.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.2018.8.15'
+ModuleVersion = '0.2018.8.16'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -69,7 +69,7 @@ PowerShellVersion = '5.0'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = @("Remove-Credential","Save-Credential","New-Credential","Show-Credential")
+FunctionsToExport = @("Invoke-RemoteDesktop","New-AzurePSSession","New-Password","New-Credential","Remove-Credential","Save-Credential","Show-Credential", "Remove-Application","Save-Application","Show-Application","Use-Application")
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -78,7 +78,7 @@ CmdletsToExport = @()
 # VariablesToExport = @()
 
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-AliasesToExport = @()
+AliasesToExport = @("rdp")
 
 # DSC resources to export from this module
 # DscResourcesToExport = @()
@@ -95,7 +95,7 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = 'Windows','Crednetial','Security','RunAs'
+        Tags = 'Windows','Credential','Security','RunAs'
 
         # A URL to the license for this module.
         LicenseUri = 'https://github.com/mithrandyr/SimplyCredential/raw/master/LICENSE'
@@ -107,7 +107,7 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Not Released...'
+        ReleaseNotes = 'Beta Release'
 
         # Prerelease string of this module
         # Prerelease = ''

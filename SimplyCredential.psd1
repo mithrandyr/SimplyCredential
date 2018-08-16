@@ -12,7 +12,7 @@
 RootModule = 'SimplyCredential.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.2018.8.16'
+ModuleVersion = '0.2018.816.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -69,7 +69,7 @@ PowerShellVersion = '5.0'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = @("Invoke-RemoteDesktop","New-AzurePSSession","New-Password","New-Credential","Remove-Credential","Save-Credential","Show-Credential", "Remove-Application","Save-Application","Show-Application","Use-Application")
+FunctionsToExport = @("Invoke-RemoteDesktop","New-AzurePSSession","New-Password","New-Credential","Remove-Credential","Save-Credential","Show-Credential","Use-Credential","Remove-Application","Save-Application","Show-Application","Use-Application")
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()

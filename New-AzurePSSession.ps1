@@ -25,7 +25,7 @@ function New-AzurePSSession {
         Credential = $Credential
         UseSSL = $true
         SessionOption = New-PSSessionOption -SkipCACheck -SkipCNCheck
-        Name = $DnsName.split(".")[0]
+        Name = $ComputerName.split(".")[0]
     }
 
     New-PSSession @splat

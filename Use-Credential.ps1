@@ -10,7 +10,7 @@
 #>
 function Use-Credential {
     [cmdletBinding()]
-    param([Parameter(Mandatory,ValueFromPipeline)][string]$Name)
+    param([Parameter(ValueFromPipeline)][string]$Name = "Default")
 
     if($script:CredList.keys -contains $Name) { $script:CredList[$Name] }
     else { Write-Error "The credential '$name' does not exist." }

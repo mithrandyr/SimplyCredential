@@ -91,3 +91,6 @@ Register-ArgumentCompleter -CommandName "Use-Application", "Save-Application", "
 
 # Clean variables
 Remove-Variable f, CreateProcessWithLogonW, dataPath
+
+#Adding HKCU drive if it doesn't exit
+if(-not (Test-Path hkcu:)) { New-PSDrive -Name hkcu -PSProvider Registry -Root HKEY_CURRENT_USER | Out-Null }

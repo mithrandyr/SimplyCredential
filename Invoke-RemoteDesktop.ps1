@@ -50,45 +50,23 @@ function Invoke-RemoteDesktop {
     
     if($FullScreen) { $argArray += "/f" }
     else {
+        $w, $h = 0, 0
         if($Resolution) { $w, $h = $Resolution -split "x" }
         if($Width) { $w = $Width }
         if($Height) { $h = $Height }
 
-        if($w) { $argArray += "/w:$w" }
-        if($h) { $argArray += "/h:$h" }
+        if($w -gt 0) { $argArray += "/w:$w" }
+        if($h -gt 0) { $argArray += "/h:$h" }
     }
     
     Write-Verbose ($argarray -join " ")
     
-    if($Credential)
-    {
-        #setup registry to ignore certificate warnings
-        $regKeyPath = "HKCU:\SOFTWARE\Microsoft\Terminal Server Client\Servers\$Server"
-        $delKeyFlag = $false
-        $delPropertyFlag = $false
-        
-        if(Test-Path $regKeyPath)
-        {
-            if(-not (Get-Item $regKeyPath).Property -contains "CertHash")
-            {
-                $delPropertyFlag = $true
-                Set-ItemProperty -Path $regKeyPath -Name "CertHash" -Value ([byte[]](,0 * 20))
-            }
-        }
-        else
-        {
-            $delKeyFlag = $true
-            New-Item -Path $regKeyPath -Force | Out-Null
-            Set-ItemProperty -Path $regKeyPath -Name "CertHash" -Value ([byte[]](,0 * 20))            
-        }
-        
+    if($Credential) {
         Start-Process -FilePath "cmdkey.exe" -ArgumentList ("/generic:TERMSRV/{0} /user:{1} /pass:{2}" -f $ComputerName, $Credential.UserName, $Credential.GetNetworkCredential().Password) -WindowStyle Hidden -Wait
         Start-Sleep -Milliseconds 100
-        Start-Process -FilePath "mstsc.exe" -ArgumentList $argArray 
-        Start-Sleep -Seconds 1
+        Start-Process -FilePath "mstsc.exe" -ArgumentList $argArray
+        Start-Sleep -Seconds 5
         Start-Process -FilePath "cmdkey.exe" -ArgumentList "/delete:TERMSRV/$ComputerName" -WindowStyle Hidden -Wait
-        if($delPropertyFlag) { Remove-ItemProperty -Path $regKeyPath -Name "CertHash" }
-        elseif($delKeyFlag) { Remove-Item -Path $regKeyPath }
     }
     else { Start-Process -FilePath "mstsc.exe" -ArgumentList $argArray }
 }

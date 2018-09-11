@@ -73,7 +73,7 @@ ForEach($f in Get-ChildItem $PSScriptRoot -filter "*.ps1" -File) {
 
 
 # Register ArgumentCompleter
-Register-ArgumentCompleter -CommandName "Use-Credential", "Save-Credential", "Remove-Credential", "Show-Credential" -ParameterName Name -ScriptBlock {
+Register-ArgumentCompleter -CommandName @("Use-Credential", "Save-Credential", "Remove-Credential", "Show-Credential") -ParameterName Name -ScriptBlock {
     Param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameter)
     $script:CredList.Keys | 
         Where-Object { $_ -like "$wordToComplete*" } |
@@ -82,7 +82,7 @@ Register-ArgumentCompleter -CommandName "Use-Credential", "Save-Credential", "Re
         }
 }
 
-Register-ArgumentCompleter -CommandName "Use-Application", "Save-Application", "Remove-Application", "Show-Application" -ParameterName Name -ScriptBlock {
+Register-ArgumentCompleter -CommandName @("Use-Application", "Save-Application", "Remove-Application", "Show-Application") -ParameterName Name -ScriptBlock {
     Param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameter)
     $script:AppList.Keys | 
         Where-Object { $_ -like "$wordToComplete*" } |

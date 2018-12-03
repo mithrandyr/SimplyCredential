@@ -1,9 +1,15 @@
 Set-StrictMode -Version Latest
 #$ErrorActionPreference = "Stop"
 
-[string]$dataPath = "$home\AppData\Low\SimplyCredential"
+[string]$dataPath = "$home\AppData\Local\SimplyCredential"
 $script:AppListPath = Join-Path $dataPath "AppList.clixml"
-$script:CredListPath= Join-Path $dataPath "CredList.clixml"
+$script:CredListPath = Join-Path $dataPath "CredList.clixml"
+
+#2018-12-03 changing folder location...
+if(Test-Path "$home\AppData\Low\SimplyCredential") {
+    Write-Warning "Found data stored in old path (AppData\Low\SimplyCredential), migrating to new path (AppData\Local\SimplyCredential)!"
+    Move-Item -Path "$home\AppData\Low\SimplyCredential" -Destination $dataPath
+}
 
 if(-not (Test-Path -Path $dataPath)) { New-Item -Path $dataPath -ItemType Directory -Force | Out-Null }
 

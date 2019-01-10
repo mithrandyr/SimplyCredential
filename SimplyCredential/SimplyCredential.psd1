@@ -12,7 +12,7 @@
 RootModule = 'SimplyCredential.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.1.1.20181203'
+ModuleVersion = '1.2.0.20190110'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -33,7 +33,7 @@ Copyright = '(c) 2018 Mithrandyr. All rights reserved.'
 Description = 'Simply Module for windows credentials.'
 
 # Minimum version of the Windows PowerShell engine required by this module
-PowerShellVersion = '5.0'
+PowerShellVersion = '5.1'
 
 # Name of the Windows PowerShell host required by this module
 # PowerShellHostName = ''
@@ -118,7 +118,7 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Beta Release'
+        ReleaseNotes = 'Beta Release -- You can now use Get-AzureToken to get tokens from either IMS or via username & password.'
 
         # Prerelease string of this module
         # Prerelease = ''

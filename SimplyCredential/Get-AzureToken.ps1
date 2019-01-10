@@ -1,9 +1,47 @@
-function Get-AzureToken {
-    param([Parameter()][ValidateSet("DataLake","EventHubs","KeyVault","ResourceManager","ServiceBus","Sql","Storage")]
-        [string]$ResourceName = "ResourceManager"
-        , [Parameter()][string]$ApiVersion = "2018-02-01"
-        , [switch]$AsToken)
+<#
+.Synopsis
+    Get Token for accessing Azure Resources.
 
+.Description
+    Get Token for accessing Azure Resources.
+    This token is either from the Identity Management Service (IMS)
+    that Azure VMs and other Azure services use.  Or it is the token generated
+    from the user credentials (username/password) that is passed in.  If using
+    credentials, requires the AzureRM.Profile PowerShell module to be loaded.
+
+    Using the switch -AzProfile will attempt to pull the token from the cache
+    but requires that you already have the module loaded and are authenticated.
+
+.Parameter ResourceName
+    The resource you wish a token for.
+
+.Parameter ApiVersion
+    [IMS] The API version you are accessing, defaults to '2018-02-01'
+
+.Parameter AsToken
+    [IMS] Will only return the token instead of the entire entire response.
+
+.Parameter AzUserCredential
+    The credentials you want to authenticate as
+
+.Parameter AzTenantId
+    Defaults to (Get-AzureRmTenant)[0].id
+
+.Parameter AzClientId
+    Defaults to the well known PowerShell client id
+#>
+function Get-AzureToken {
+    [cmdletBinding(DefaultParameterSetName="ims")]
+    param([Parameter()]
+            [ValidateSet("DataLake","EventHubs","KeyVault","ResourceManager","ServiceBus","Sql","Storage")]
+            [string]$ResourceName = "ResourceManager"
+        , [Parameter(ParameterSetName="ims")][string]$ApiVersion = "2018-02-01"
+        , [Parameter(ParameterSetName="ims")][switch]$AsToken
+        , [Parameter(ParameterSetName="az")][pscredential]$AzCredential
+        , [Parameter(ParameterSetName="az")][string]$AzTenantId
+        , [Parameter(ParameterSetName="az")][string]$AzClientId = '1950a258-227b-4e31-a9cf-717495945fc2' # Set well-known client ID for Azure PowerShell
+    )
+    
     $resourceIds = @{
         ResourceManager = "https://management.azure.com/"
         KeyVault = "https://vault.azure.net/"
@@ -14,13 +52,30 @@ function Get-AzureToken {
         Storage = "https://storage.azure.com/"
     }
 
-    [string]$Uri = "http://169.254.169.254/metadata/identity/oauth2/token?api-version={0}&resource={1}" -f $ApiVersion, $resourceIds[$ResourceName]
+    if($AzCredential) {
+        if(-not $AzTenantId) {
+            if(Get-Command -Verb Get -Noun AzureRmTenant) { $AzTenantId = (Get-AzureRmTenant)[0].id }
+            else { throw "Please load the AzureRM.Profile and connect to Azure first or provide a TenantId via -AzTenantId!" }
+        }
 
-    if($AsToken) {
-        Invoke-RestMethod -Uri $Uri -ContentType "application/json" -Method Get -Headers @{Metadata=$true} |
-            Select-Object -ExpandProperty access_token
+        $authority = 'https://login.microsoftonline.com/common/' + $AzTenantId
+        Write-Verbose "Authority: $authority"
+       
+        $AADcredential = [Microsoft.IdentityModel.Clients.ActiveDirectory.UserCredential]::new($AzCredential.UserName, $AzCredential.Password)
+        $authContext = [Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext]::new($authority)
+        $authResult = $authContext.AcquireTokenAsync($resourceIds[$ResourceName],$AzClientId,$AADcredential)
+        $Token = $authResult.Result.CreateAuthorizationHeader()
+        $Token
     }
-    else { Invoke-RestMethod -Uri $Uri -ContentType "application/json" -Method Get -Headers @{Metadata=$true} }
+    else {
+        [string]$Uri = "http://169.254.169.254/metadata/identity/oauth2/token?api-version={0}&resource={1}" -f $ApiVersion, $resourceIds[$ResourceName]
+
+        if($AsToken) {
+            "Bearer {0}" -f (Invoke-RestMethod -Uri $Uri -ContentType "application/json" -Method Get -Headers @{Metadata=$true} |
+                Select-Object -ExpandProperty access_token)
+        }
+        else { Invoke-RestMethod -Uri $Uri -ContentType "application/json" -Method Get -Headers @{Metadata=$true} }
+    }
 }
 
 Export-ModuleMember -Function Get-AzureToken

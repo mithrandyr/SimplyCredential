@@ -24,3 +24,6 @@ Creates a PSSession preconfigured to work with Azure.
 
 **New-Password**  
 Password generating function.
+
+**Get-AzureToken**
+Provides the means of gathering the AZ Token from either IMS or from a credential object.

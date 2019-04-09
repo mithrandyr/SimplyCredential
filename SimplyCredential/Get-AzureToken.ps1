@@ -33,13 +33,14 @@
 function Get-AzureToken {
     [cmdletBinding(DefaultParameterSetName="ims")]
     param([Parameter()]
-            [ValidateSet("DataLake","EventHubs","KeyVault","ResourceManager","ServiceBus","Sql","Storage")]
+            [ValidateSet("AzureDevOps","DataLake","EventHubs","KeyVault","ResourceManager","ServiceBus","Sql","Storage")]
             [string]$ResourceName = "ResourceManager"
         , [Parameter(ParameterSetName="ims")][string]$ApiVersion = "2018-02-01"
         , [Parameter(ParameterSetName="ims")][switch]$AsToken
         , [Parameter(ParameterSetName="az")][pscredential]$AzCredential
         , [Parameter(ParameterSetName="az")][string]$AzTenantId
         , [Parameter(ParameterSetName="az")][string]$AzClientId = '1950a258-227b-4e31-a9cf-717495945fc2' # Set well-known client ID for Azure PowerShell
+        , [Parameter()][String]$ResourceOverride
     )
     
     $resourceIds = @{
@@ -50,8 +51,10 @@ function Get-AzureToken {
         EventHubs = "https://eventhubs.azure.net/"
         ServiceBus = "https://servicebus.azure.net/"
         Storage = "https://storage.azure.com/"
+        AzureDevOps = "499b84ac-1321-427f-aa17-267ca6975798"
     }
-
+    
+    if(-not $ResourceOverride) { $ResourceOverride = $resourceIds[$ResourceName] }
     if($AzCredential) {
         if(-not $AzTenantId) {
             if(Get-Command -Verb Get -Noun AzureRmTenant) { $AzTenantId = (Get-AzureRmTenant)[0].id }
@@ -63,12 +66,12 @@ function Get-AzureToken {
        
         $AADcredential = [Microsoft.IdentityModel.Clients.ActiveDirectory.UserCredential]::new($AzCredential.UserName, $AzCredential.Password)
         $authContext = [Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext]::new($authority)
-        $authResult = $authContext.AcquireTokenAsync($resourceIds[$ResourceName],$AzClientId,$AADcredential)
+        $authResult = $authContext.AcquireTokenAsync($ResourceOverride,$AzClientId,$AADcredential)
         $Token = $authResult.Result.CreateAuthorizationHeader()
         $Token
     }
     else {
-        [string]$Uri = "http://169.254.169.254/metadata/identity/oauth2/token?api-version={0}&resource={1}" -f $ApiVersion, $resourceIds[$ResourceName]
+        [string]$Uri = "http://169.254.169.254/metadata/identity/oauth2/token?api-version={0}&resource={1}" -f $ApiVersion, $ResourceOverride
 
         if($AsToken) {
             "Bearer {0}" -f (Invoke-RestMethod -Uri $Uri -ContentType "application/json" -Method Get -Headers @{Metadata=$true} |

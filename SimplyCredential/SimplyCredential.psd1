@@ -12,7 +12,7 @@
 RootModule = 'SimplyCredential.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.2.1.20190409'
+ModuleVersion = '1.2.2.20190715'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()

@@ -7,7 +7,7 @@
     This token is either from the Identity Management Service (IMS)
     that Azure VMs and other Azure services use.  Or it is the token generated
     from the user credentials (username/password) that is passed in.  If using
-    credentials, requires the AzureRM.Profile PowerShell module to be loaded.
+    credentials, requires the Az.Accounts PowerShell module to be loaded.
 
     Using the switch -AzProfile will attempt to pull the token from the cache
     but requires that you already have the module loaded and are authenticated.
@@ -57,18 +57,18 @@ function Get-AzureToken {
     if(-not $ResourceOverride) { $ResourceOverride = $resourceIds[$ResourceName] }
     if($AzCredential) {
         if(-not $AzTenantId) {
-            if(Get-Command -Verb Get -Noun AzureRmTenant) { $AzTenantId = (Get-AzureRmTenant)[0].id }
-            else { throw "Please load the AzureRM.Profile and connect to Azure first or provide a TenantId via -AzTenantId!" }
+            if(Get-Module -ListAvailable Az.Accounts) { $AzTenantId = (Get-AzTenant)[0].id } 
+            else { throw "Please load the Az.Accounts module and connect to Azure first or provide a TenantId via -AzTenantId!" }
         }
 
         $authority = 'https://login.microsoftonline.com/common/' + $AzTenantId
         Write-Verbose "Authority: $authority"
        
-        $AADcredential = [Microsoft.IdentityModel.Clients.ActiveDirectory.UserCredential]::new($AzCredential.UserName, $AzCredential.Password)
+        $AADcredential = [Microsoft.IdentityModel.Clients.ActiveDirectory.UserPasswordCredential]::new($AzCredential.UserName, $AzCredential.Password)
         $authContext = [Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContext]::new($authority)
-        $authResult = $authContext.AcquireTokenAsync($ResourceOverride,$AzClientId,$AADcredential)
-        $Token = $authResult.Result.CreateAuthorizationHeader()
-        $Token
+        #$authResult = $authContext.AcquireTokenAsync($ResourceOverride,$AzClientId,$AADcredential) # old AzureRm way
+        $authResult = [Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationContextIntegratedAuthExtensions]::AcquireTokenAsync($authContext, $ResourceOverride, $AzClientId, $AADcredential).Result;
+        "bearer " + $authResult.AccessToken
     }
     else {
         [string]$Uri = "http://169.254.169.254/metadata/identity/oauth2/token?api-version={0}&resource={1}" -f $ApiVersion, $ResourceOverride
